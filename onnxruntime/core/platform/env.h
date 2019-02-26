@@ -96,6 +96,12 @@ class Env {
   virtual Thread* StartThread(const ThreadOptions& thread_options,
                               const std::string& name,
                               std::function<void()> fn) const = 0;
+  /// File size must less than 2GB.
+  /// No support for non-regular files(e.g. socket, pipe, "/proc/*")
+  virtual common::Status ReadFileAsString(const char* fname, std::string* out) const = 0;
+#ifdef _WIN32
+  virtual common::Status ReadFileAsString(const wchar_t* fname, std::string* out) const = 0;
+#endif
 
 #ifdef _WIN32
   //Mainly for use with protobuf library
