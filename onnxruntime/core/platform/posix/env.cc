@@ -95,6 +95,37 @@ class PosixEnv : public Env {
     return getpid();
   }
 
+  common::Status ReadFileAsString(const char* fname, std::string* out) const override {
+    if (!out) {
+      return common::Status(common::ONNXRUNTIME, common::INVALID_ARGUMENT, "'out' cannot be NULL");
+    }
+    char errbuf[512];
+    int fd = open(fname, O_RDONLY);
+    if (fd < 0) {
+      snprintf(errbuf, sizeof(errbuf), "%s:%d open file %s fail, errcode = %d", __FILE__, __LINE__, fname, errno);
+      return common::Status(common::ONNXRUNTIME, common::FAIL, errbuf);
+    }
+    struct stat stbuf;
+    if ((fstat(fd, &stbuf) != 0) || (!S_ISREG(stbuf.st_mode))) {
+      close(fd);
+      snprintf(errbuf, sizeof(errbuf), "%s:%d read file %s fail", __FILE__, __LINE__, fname);
+      return common::Status(common::ONNXRUNTIME, common::FAIL, errbuf);
+    }
+    if (stbuf.st_size == 0) {
+      out->clear();
+    } else {
+      out->resize(stbuf.st_size, '\0');
+      ssize_t bytes_readed = read(fd, (void*)out->data(), stbuf.st_size);
+      if (bytes_readed <= 0 || bytes_readed != stbuf.st_size) {
+        close(fd);
+        snprintf(errbuf, sizeof(errbuf), "%s:%d open file %s fail, errcode = %d", __FILE__, __LINE__, fname, errno);
+        return common::Status(common::ONNXRUNTIME, common::FAIL, errbuf);
+      }
+      close(fd);
+    }
+    return common::Status::OK();
+  }
+
   common::Status FileOpenRd(const std::string& path, /*out*/ int& fd) const override {
     fd = open(path.c_str(), O_RDONLY);
     if (0 > fd) {
