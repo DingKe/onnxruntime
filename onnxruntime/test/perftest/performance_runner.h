@@ -88,7 +88,7 @@ class PerformanceRunner {
 
  private:
   bool Initialize();
-  inline Status RunOneIteration(bool isWarmup = false);
+  Status RunOneIteration(bool isWarmup = false);
 
   inline Status RunFixDuration() {
     while (performance_result_.total_time_cost < performance_test_config_.run_config.duration_in_seconds) {
