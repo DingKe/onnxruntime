@@ -481,6 +481,7 @@ if (onnxruntime_BUILD_SHARED_LIB)
           ${ONNXRUNTIME_SHARED_LIB_TEST_SRC_DIR}/test_run_options.cc
           ${ONNXRUNTIME_SHARED_LIB_TEST_SRC_DIR}/test_allocator.cc
           ${ONNXRUNTIME_SHARED_LIB_TEST_SRC_DIR}/test_inference.cc
+          ${ONNXRUNTIME_SHARED_LIB_TEST_SRC_DIR}/test_tensor_loader.cc
           ${ONNXRUNTIME_SHARED_LIB_TEST_SRC_DIR}/test_nontensor_types.cc)
   if(onnxruntime_RUN_ONNX_TESTS)
     list(APPEND onnxruntime_shared_lib_test_SRC ${ONNXRUNTIME_SHARED_LIB_TEST_SRC_DIR}/test_io_types.cc)
@@ -488,10 +489,9 @@ if (onnxruntime_BUILD_SHARED_LIB)
   AddTest(DYN
           TARGET onnxruntime_shared_lib_test
           SOURCES ${onnxruntime_shared_lib_test_SRC}
-          LIBS onnxruntime_mocked_allocator
+          LIBS onnxruntime_mocked_allocator onnx_proto protobuf::libprotobuf
           DEPENDS ${all_dependencies}
   )
-
   #demo
   if(PNG_FOUND)
     add_executable(fns_candy_style_transfer "${ONNXRUNTIME_ROOT}/test/shared_lib/fns_candy_style_transfer.c")

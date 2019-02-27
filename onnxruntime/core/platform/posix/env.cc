@@ -97,12 +97,17 @@ class PosixEnv : public Env {
 
   common::Status ReadFileAsString(const char* fname, std::string* out) const override {
     if (!out) {
-      return common::Status(common::ONNXRUNTIME, common::INVALID_ARGUMENT, "'out' cannot be NULL");
+      return common::Status(common::ONNXRUNTIME, common::INVALID_ARGUMENT, "ReadFileAsString: 'out' cannot be NULL");
+    }
+    if (!fname) {
+      return common::Status(common::ONNXRUNTIME, common::INVALID_ARGUMENT, "ReadFileAsString: 'fname' cannot be NULL");
     }
     char errbuf[512];
     int fd = open(fname, O_RDONLY);
     if (fd < 0) {
-      snprintf(errbuf, sizeof(errbuf), "%s:%d open file %s fail, errcode = %d", __FILE__, __LINE__, fname, errno);
+      int err = errno;
+      snprintf(errbuf, sizeof(errbuf), "%s:%d open file %s fail:%s, errcode = %d", __FILE__, __LINE__, fname,
+               strerror(err), err);
       return common::Status(common::ONNXRUNTIME, common::FAIL, errbuf);
     }
     struct stat stbuf;
